@@ -1,0 +1,15 @@
+track list:
+
+0 - kick
+1 - beat L
+2 - celular L
+3 - citronella L
+4 - field L
+5 - imagens L
+6 - voices L
+7 - beat R
+8 - celular R
+9 - citronella R
+10 - field R
+11 - imagens R
+12 - voices R

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./main.css">
+</head>
+<canvas id="c"></canvas>
+<body>
+<!-- <h1>Rebocando o Pavilhão Philips</h1> -->
+
+    <script type="module">
+        // import * as THREE from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
+        import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/build/three.module.js';
+        import {OBJLoader2} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/OBJLoader2.js';
+        import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/controls/OrbitControls.js';
+        import { BasisTextureLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/BasisTextureLoader.js';
+        // import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/GLTFLoader.js';
+
+        const canvas = document.querySelector('#c');
+        const renderer = new THREE.WebGLRenderer({canvas});
+
+        const fov = 75;
+        const aspect = 2;  // the canvas default
+        const near = 0.1;
+        const far = 2000;
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.set(52,6,-30);
+
+        const listener = new THREE.AudioListener();
+        camera.add( listener );
+
+        const controls = new OrbitControls(camera, canvas);
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        const scene = new THREE.Scene();
+
+        {
+            const loader = new THREE.TextureLoader();
+            const texture = loader.load(
+            'textures/skybox.png',
+            () => {
+                const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+                rt.fromEquirectangularTexture(renderer, texture);
+                scene.background = rt;
+            });
+        }
+        const terrainTextureLoader = new THREE.TextureLoader();
+        const terrainMaterial = new THREE.MeshPhongMaterial({
+            map: terrainTextureLoader.load( 'textures/terrain.jpg')
+        });
+
+        // instantiate a loader
+        const terrainLoader = new OBJLoader2();
+        // load a resource
+        terrainLoader.load(
+            // resource URL
+            'obj/Terrain.obj',
+            // called when resource is loaded
+            function ( object ) {
+                // object.position.set(-150,0,-150);
+                object.rotation.y = -180;
+                // object.material = terrainMaterial;
+                console.log( object.material);
+                scene.add( object );
+            },
+            // called when loading is in progresses
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );
+
+        // var terrainLoader = new GLTFLoader();
+
+        // terrainLoader.load(
+        //     // resource URL
+        //     'glb/terrain_ground_moss.glb',
+        //     // called when the resource is loaded
+        //     function ( gltf ) {
+
+        //         scene.add( gltf.scene );
+
+        //         gltf.animations; // Array<THREE.AnimationClip>
+        //         gltf.scene; // THREE.Group
+        //         gltf.scenes; // Array<THREE.Group>
+        //         gltf.cameras; // Array<THREE.Camera>
+        //         gltf.asset; // Object
+
+        //     },
+        //     // called while loading is progressing
+        //     function ( xhr ) {
+
+        //         console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+        //     },
+        //     // called when loading has errors
+        //     function ( error ) {
+
+        //         console.log( 'An error happened' );
+
+        //     }
+        // );
+
+        const ppLoader = new OBJLoader2();
+        // load a resource
+        ppLoader.load(
+            // resource URL
+            'obj/pp_dissolved.obj',
+            // called when resource is loaded
+            function ( object ) {
+                // object.position.set(-40,0,0);
+                object.scale.set(1.25,1.25,1.25);
+                object.rotation.y = 35;
+                scene.add( object );
+            },
+            // called when loading is in progresses
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );
+
+        var geometry = new THREE.SphereGeometry(0.25,10,10);
+            
+        var deltaPosition = 5;
+        
+        let numberOfSources = 12;
+        var mesh = [];
+        var randomRotation = [];
+        var materialColor = [];
+        var material = []; 
+        var sound = [];
+        let initialPosition = new THREE.Vector3(0,2,0);
+        let radialDistance = 5;
+        var deltaAngle = 2 * Math.PI / numberOfSources;
+        var r = 0;
+
+        for (let index = 0; index < numberOfSources; index++) {
+            // materialColor[index] = new THREE.Color(Math.random(),Math.random(),Math.random());
+            // material[index] = new THREE.MeshLambertMaterial({color: materialColor[index]});
+            mesh[index] = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: new THREE.Color(Math.random(),Math.random(),Math.random())}));
+            mesh[index].position.x = initialPosition.x + radialDistance*Math.sin(r);
+            mesh[index].position.y = initialPosition.y;
+            mesh[index].position.z = initialPosition.z + radialDistance*Math.cos(r);
+            r += deltaAngle;
+            
+            //create a global audio source
+            sound[index] = new THREE.PositionalAudio( listener );
+
+            // load a sound and set it as the Audio object's buffer
+            var audioLoader = new THREE.AudioLoader();
+                    
+            audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
+                sound[index].setBuffer( buffer );
+                sound[index].setLoop( true );
+                sound[index].setVolume( 2.0 / numberOfSources );
+                sound[index].play();
+            });
+           
+            scene.add(mesh[index]);
+            mesh[index].add(sound[index]);
+        };
+
+        var light = [];
+        var lightPosition = [
+                    new THREE.Vector3(25,10,10),
+                    new THREE.Vector3(80,10,20),
+                    new THREE.Vector3(125,10,10),
+                    new THREE.Vector3(-125,10,-120)
+                    ];
+        let lightIntensity = 0.5;
+        var lightColor = [
+                    new THREE.Color('skyblue'),
+                    new THREE.Color('skyblue'),
+                    new THREE.Color('skyblue'),
+                    new THREE.Color('skyblue')
+                    ];
+     
+        for (let index = 0; index < lightPosition.length; index++) {
+            light[index] = new THREE.PointLight(lightColor[index],lightIntensity,1000);
+            light[index].position.set(lightPosition[index].x,lightPosition[index].y,lightPosition[index].z);
+            scene.add(light[index]);
+        }
+
+        function resizeRendererToDisplaySize(renderer) {
+            const canvas = renderer.domElement;
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            const needResize = canvas.width !== width || canvas.height !== height;
+            if (needResize) {
+            renderer.setSize(width, height, false);
+            }
+            return needResize;
+        }
+
+        function render(time) {
+            time *= 0.001;
+
+            if (resizeRendererToDisplaySize(renderer)) {
+            const canvas = renderer.domElement;
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            }
+            renderer.render(scene, camera);
+
+            requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+
+    </script>
+</body>
+</html>
