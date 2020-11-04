@@ -8,7 +8,7 @@
 </head>
 <canvas id="c"></canvas>
 <body>
-<!-- <h1>Rebocando o Pavilhão Philips</h1> -->
+<h1>Rebocando o Pavilhão Philips</h1>
 
     <script type="module">
         // import * as THREE from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
@@ -16,10 +16,19 @@
         import {OBJLoader2} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/OBJLoader2.js';
         import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/controls/OrbitControls.js';
         import { BasisTextureLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/BasisTextureLoader.js';
-        // import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/GLTFLoader.js';
+        import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/GLTFLoader.js';
 
         const canvas = document.querySelector('#c');
         const renderer = new THREE.WebGLRenderer({canvas});
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        // renderer.outputEncoding = THREE.GammaEncoding;
+        // renderer.outputEncoding = THREE.RGBEEncoding;
+        // renderer.outputEncoding = THREE.LogLuvEncoding;
+        // renderer.outputEncoding = THREE.RGBM7Encoding;
+        // renderer.outputEncoding = THREE.RGBM16Encoding;
+        // renderer.outputEncoding = THREE.RGBDEncoding;
+        // renderer.outputEncoding = THREE.BasicDepthPacking;
+        // renderer.outputEncoding = THREE.RGBADepthPacking;
 
         const fov = 75;
         const aspect = 2;  // the canvas default
@@ -47,85 +56,68 @@
                 scene.background = rt;
             });
         }
-        const terrainTextureLoader = new THREE.TextureLoader();
-        const terrainMaterial = new THREE.MeshPhongMaterial({
-            map: terrainTextureLoader.load( 'textures/terrain.jpg')
-        });
+        
 
-        // instantiate a loader
-        const terrainLoader = new OBJLoader2();
-        // load a resource
+        const terrainTextureLoader = new THREE.TextureLoader();
+        var terrainMap = terrainTextureLoader.load( 'textures/terrain_cliff_baked.png');
+        // If texture is used for color information, set colorspace.
+        terrainMap.encoding = THREE.sRGBEncoding;
+        // UVs use the convention that (0, 0) corresponds to the upper left corner of a texture.
+        terrainMap.flipY = false;
+        const terrainMaterial = new THREE.MeshPhongMaterial({map: terrainMap}); 
+
+        var terrainLoader = new GLTFLoader();
+
         terrainLoader.load(
             // resource URL
-            'obj/Terrain.obj',
-            // called when resource is loaded
-            function ( object ) {
-                // object.position.set(-150,0,-150);
-                object.rotation.y = -180;
-                // object.material = terrainMaterial;
-                console.log( object.material);
-                scene.add( object );
+            'glb/terrain_new4.glb',
+            // called when the resource is loaded
+            function ( gltf ) {
+
+                let terrain = gltf.scene;
+                terrain.rotation.y = -180;
+                // terrain.material = terrainMaterial;
+                scene.add( terrain );
+                // console.log(terrain.material.map);
             },
-            // called when loading is in progresses
+            // called while loading is progressing
             function ( xhr ) {
+
                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
             },
             // called when loading has errors
             function ( error ) {
-                console.log( 'An error happened' );
+
+                console.log( 'An error happened in the terrain loader' );
+
             }
         );
 
-        // var terrainLoader = new GLTFLoader();
+        const ppLoader = new GLTFLoader();
 
-        // terrainLoader.load(
-        //     // resource URL
-        //     'glb/terrain_ground_moss.glb',
-        //     // called when the resource is loaded
-        //     function ( gltf ) {
-
-        //         scene.add( gltf.scene );
-
-        //         gltf.animations; // Array<THREE.AnimationClip>
-        //         gltf.scene; // THREE.Group
-        //         gltf.scenes; // Array<THREE.Group>
-        //         gltf.cameras; // Array<THREE.Camera>
-        //         gltf.asset; // Object
-
-        //     },
-        //     // called while loading is progressing
-        //     function ( xhr ) {
-
-        //         console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-        //     },
-        //     // called when loading has errors
-        //     function ( error ) {
-
-        //         console.log( 'An error happened' );
-
-        //     }
-        // );
-
-        const ppLoader = new OBJLoader2();
-        // load a resource
         ppLoader.load(
             // resource URL
-            'obj/pp_dissolved.obj',
-            // called when resource is loaded
-            function ( object ) {
-                // object.position.set(-40,0,0);
-                object.scale.set(1.25,1.25,1.25);
-                object.rotation.y = 35;
-                scene.add( object );
+            'glb/pp5.glb',
+            // called when the resource is loaded
+            function ( gltf ) {
+
+                let pp = gltf.scene;
+                pp.scale.set(1.25,1.25,1.25);
+                pp.rotation.y = 35;
+                scene.add( pp );
             },
-            // called when loading is in progresses
+            // called while loading is progressing
             function ( xhr ) {
+
                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
             },
             // called when loading has errors
             function ( error ) {
-                console.log( 'An error happened' );
+
+                console.log( 'An error happened in the pp loader' );
+
             }
         );
 
@@ -143,11 +135,16 @@
         let radialDistance = 5;
         var deltaAngle = 2 * Math.PI / numberOfSources;
         var r = 0;
-
+        let indexMat = 0;
         for (let index = 0; index < numberOfSources; index++) {
             // materialColor[index] = new THREE.Color(Math.random(),Math.random(),Math.random());
             // material[index] = new THREE.MeshLambertMaterial({color: materialColor[index]});
-            mesh[index] = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: new THREE.Color(Math.random(),Math.random(),Math.random())}));
+            // mesh[index] = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: new THREE.Color(Math.random(),Math.random(),Math.random())}));
+            mesh[index] = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                map: new THREE.TextureLoader().load( 'textures/spheres/'+indexMat+'.jpg'),
+                emissive: new THREE.Color(Math.random(),Math.random(),Math.random()),
+                emissiveIntensity : 0.05}));
+            if (indexMat < 6) {indexMat += 1 } else {indexMat = 1 };
             mesh[index].position.x = initialPosition.x + radialDistance*Math.sin(r);
             mesh[index].position.y = initialPosition.y;
             mesh[index].position.z = initialPosition.z + radialDistance*Math.cos(r);
@@ -172,12 +169,12 @@
 
         var light = [];
         var lightPosition = [
-                    new THREE.Vector3(25,10,10),
-                    new THREE.Vector3(80,10,20),
-                    new THREE.Vector3(125,10,10),
-                    new THREE.Vector3(-125,10,-120)
+                    new THREE.Vector3(25,20,50),
+                    new THREE.Vector3(80,20,-50),
+                    new THREE.Vector3(125,20,50),
+                    new THREE.Vector3(-125,20,-50)
                     ];
-        let lightIntensity = 0.5;
+        let lightIntensity = 0.05;
         var lightColor = [
                     new THREE.Color('skyblue'),
                     new THREE.Color('skyblue'),
@@ -190,6 +187,9 @@
             light[index].position.set(lightPosition[index].x,lightPosition[index].y,lightPosition[index].z);
             scene.add(light[index]);
         }
+
+        const directionalLight = new THREE.DirectionalLight( 'blue', 0.5 );
+        scene.add( directionalLight );
 
         function resizeRendererToDisplaySize(renderer) {
             const canvas = renderer.domElement;
