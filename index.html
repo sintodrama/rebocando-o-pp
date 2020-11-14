@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="./main.css">
+    <script src="https://cdn.jsdelivr.net/npm/resonance-audio/build/resonance-audio.min.js"></script>
 </head>
 <canvas id="c"></canvas>
 <body>
@@ -17,10 +18,16 @@
         import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/controls/OrbitControls.js';
         import { BasisTextureLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/BasisTextureLoader.js';
         import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/GLTFLoader.js';
+        import { VRButton } from 'https://unpkg.com/three/examples/jsm/webxr/VRButton.js';
 
         const canvas = document.querySelector('#c');
-        const renderer = new THREE.WebGLRenderer({canvas});
-        renderer.outputEncoding = THREE.sRGBEncoding;
+        const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+        // let renderer = new THREE.WebGLRenderer({antialias: true});
+        // renderer.setPixelRatio(window.devicePixelRatio);
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+        // Turn on VR support
+        renderer.xr.enabled = true;
+        // renderer.outputEncoding = THREE.sRGBEncoding;
         // renderer.outputEncoding = THREE.GammaEncoding;
         // renderer.outputEncoding = THREE.RGBEEncoding;
         // renderer.outputEncoding = THREE.LogLuvEncoding;
@@ -30,15 +37,44 @@
         // renderer.outputEncoding = THREE.BasicDepthPacking;
         // renderer.outputEncoding = THREE.RGBADepthPacking;
 
+        renderer.shadowMap.enabled = true;
+
+        document.body.appendChild(VRButton.createButton(renderer));
+
         const fov = 75;
         const aspect = 2;  // the canvas default
         const near = 0.1;
         const far = 2000;
         const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        camera.position.set(52,6,-30);
+        camera.position.set(32,6,0);
 
-        const listener = new THREE.AudioListener();
-        camera.add( listener );
+        let audioContext = new AudioContext();
+        let resonanceAudioScene = new ResonanceAudio(audioContext);
+
+        resonanceAudioScene.output.connect(audioContext.destination);
+
+        let roomDimensions = {
+            width: 35.0,
+            height: 15.0,
+            depth: 35.0,
+        };
+
+        let roomMaterials = {
+            // Room wall materials
+            left: 'concrete-block-coarse',
+            right: 'concrete-block-coarse',
+            front: 'transparent',
+            back: 'transparent',
+            // Room floor
+            down: 'concrete-block-coarse',
+            // Room ceiling
+            up: 'concrete-block-coarse',
+        };
+
+        resonanceAudioScene.setRoomProperties(roomDimensions, roomMaterials);
+
+        // const listener = new THREE.AudioListener();
+        // camera.add( listener );
 
         const controls = new OrbitControls(camera, canvas);
         controls.target.set(0, 0, 0);
@@ -57,15 +93,6 @@
             });
         }
         
-
-        const terrainTextureLoader = new THREE.TextureLoader();
-        var terrainMap = terrainTextureLoader.load( 'textures/terrain_cliff_baked.png');
-        // If texture is used for color information, set colorspace.
-        terrainMap.encoding = THREE.sRGBEncoding;
-        // UVs use the convention that (0, 0) corresponds to the upper left corner of a texture.
-        terrainMap.flipY = false;
-        const terrainMaterial = new THREE.MeshPhongMaterial({map: terrainMap}); 
-
         var terrainLoader = new GLTFLoader();
 
         terrainLoader.load(
@@ -105,6 +132,7 @@
                 let pp = gltf.scene;
                 pp.scale.set(1.25,1.25,1.25);
                 pp.rotation.y = 35;
+                console.log (pp);
                 scene.add( pp );
             },
             // called while loading is progressing
@@ -136,6 +164,9 @@
         var deltaAngle = 2 * Math.PI / numberOfSources;
         var r = 0;
         let indexMat = 0;
+        let audioElement = [];
+        let audioElementSource = [];
+
         for (let index = 0; index < numberOfSources; index++) {
             // materialColor[index] = new THREE.Color(Math.random(),Math.random(),Math.random());
             // material[index] = new THREE.MeshLambertMaterial({color: materialColor[index]});
@@ -151,45 +182,78 @@
             r += deltaAngle;
             
             //create a global audio source
-            sound[index] = new THREE.PositionalAudio( listener );
+            // sound[index] = new THREE.PositionalAudio( listener );
+            
+            audioElement[index] = document.createElement('audio');
+            audioElement[index].src = 'sounds/' + index.toString() + '.mp3';
+
+            audioElementSource[index] = audioContext.createMediaElementSource(audioElement[index]);
+            
+            sound[index] = resonanceAudioScene.createSource();
+            sound[index].rolloff = 'linear';//'logarithmic';
+            sound[index].minDistance = 1;
+            sound[index].maxDistance = 3;
+            audioElementSource[index].connect(sound[index].input);
+
+            sound[index].setPosition(mesh[index].position.x, 
+                                    mesh[index].position.y, 
+                                    mesh[index].position.z);
+
+            // audioElement[index].play();
 
             // load a sound and set it as the Audio object's buffer
-            var audioLoader = new THREE.AudioLoader();
+            // var audioLoader = new THREE.AudioLoader();
                     
-            audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
-                sound[index].setBuffer( buffer );
-                sound[index].setLoop( true );
-                sound[index].setVolume( 2.0 / numberOfSources );
-                sound[index].play();
-            });
+            // audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
+            //     sound[index].setBuffer( buffer );
+            //     sound[index].setLoop( true );
+            //     sound[index].setVolume( 2.0 / numberOfSources );
+            //     sound[index].play();
+            // });
            
             scene.add(mesh[index]);
-            mesh[index].add(sound[index]);
+            // mesh[index].add(sound[index]);
         };
+        resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
 
-        var light = [];
-        var lightPosition = [
-                    new THREE.Vector3(25,20,50),
-                    new THREE.Vector3(80,20,-50),
-                    new THREE.Vector3(125,20,50),
-                    new THREE.Vector3(-125,20,-50)
-                    ];
-        let lightIntensity = 0.05;
-        var lightColor = [
-                    new THREE.Color('skyblue'),
-                    new THREE.Color('skyblue'),
-                    new THREE.Color('skyblue'),
-                    new THREE.Color('skyblue')
-                    ];
-     
-        for (let index = 0; index < lightPosition.length; index++) {
-            light[index] = new THREE.PointLight(lightColor[index],lightIntensity,1000);
-            light[index].position.set(lightPosition[index].x,lightPosition[index].y,lightPosition[index].z);
-            scene.add(light[index]);
-        }
+        window.addEventListener('click', ( ) => {
+            for (let index = 0; index < numberOfSources; index++) {
+                audioElement[index].play();
+            }
+        });
 
-        const directionalLight = new THREE.DirectionalLight( 'blue', 0.5 );
-        scene.add( directionalLight );
+        // Purple top spot light
+        let purpleSpotLight = new THREE.SpotLight(0xA771C0);
+        purpleSpotLight.position.set( 0, 150, 0 );
+        purpleSpotLight.intensity = 0.75;
+        purpleSpotLight.distance = 170;
+        purpleSpotLight.angle = Math.PI/2;
+        scene.add(purpleSpotLight);
+
+        // Main blue point light
+        let bluePointLight = new THREE.PointLight(0x368DF3);
+        bluePointLight.position.set( 0, 50, 0 );
+        bluePointLight.intensity = 4.5;
+        bluePointLight.distance = 200;
+        scene.add(bluePointLight);
+
+        // Pavilion blue point light
+        let pavPointLight = new THREE.PointLight(0x4B26CF);
+        pavPointLight.position.set( -25, 25, -25 );
+        pavPointLight.intensity = 1.5;
+        pavPointLight.distance = 140;
+        scene.add(pavPointLight);
+
+        // grass green point light
+        let greenGrassLight = new THREE.PointLight(0x3CD667);
+        greenGrassLight.position.set( 125, 15, -50 );
+        greenGrassLight.intensity = 5;
+        greenGrassLight.distance = 150;
+        scene.add(greenGrassLight);
+
+
+        // const directionalLight = new THREE.DirectionalLight( "rgb(39, 90, 228)", 0.5 );
+        // scene.add( directionalLight );
 
         function resizeRendererToDisplaySize(renderer) {
             const canvas = renderer.domElement;
@@ -210,12 +274,16 @@
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
             }
+            
             renderer.render(scene, camera);
-
-            requestAnimationFrame(render);
+            resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
+            // requestAnimationFrame(render);
         }
 
-        requestAnimationFrame(render);
+        // In WebXR is AnimationLoop instead of AnimationFrame
+        renderer.setAnimationLoop( render );
+        
+        
 
     </script>
 </body>
