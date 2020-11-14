@@ -8,11 +8,15 @@ canvas {
 }
 
 h1 {
+    /* position: static; */
     position: absolute;
     top: .125em;
-    left: 27em;
+    left: .5em;
+    /* position: relative; */
+    /* top: 20px; */
+    /* left: 0.5; */
     /* bottom: .5em; */
-    /* font-family: Monospace; */
+    text-align: center;
     font-family: 'Courier New', Courier, monospace;
     font-size: 1em;
     color: rgb(90, 58, 207);
@@ -21,7 +25,6 @@ h1 {
     line-height: .8em;
     border: 2px solid rgb(196, 85, 146);
     background-color: rgb(98, 228, 120);
-    /* background-color: rgb(39, 90, 228); */
     padding: .2em;
 }
 

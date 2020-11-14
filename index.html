@@ -221,8 +221,8 @@
             audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
                 sound[index].setBuffer( buffer );
                 sound[index].setLoop( true );
-                sound[index].setVolume( 2.0 / numberOfSources );
-                sound[index].play();
+                sound[index].setVolume( 4.0 / numberOfSources );
+                // sound[index].play();
             });
            
             // scene.add(mesh[index]);
@@ -231,11 +231,19 @@
         };
 
         // resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
-        // window.addEventListener('click', ( ) => {
-        //     for (let index = 0; index < numberOfSources; index++) {
-        //         audioElement[index].play();
-        //     }
-        // });
+        window.addEventListener('click', ( ) => {
+            for (let index = 0; index < numberOfSources; index++) {
+                // audioElement[index].play();
+                sound[index].play();
+            }
+        });
+
+        window.addEventListener('touchstart', ( ) => {
+            for (let index = 0; index < numberOfSources; index++) {
+                // audioElement[index].play();
+                sound[index].play();
+            }
+        });
 
         // Purple top spot light
         let purpleSpotLight = new THREE.SpotLight(0xA771C0);
