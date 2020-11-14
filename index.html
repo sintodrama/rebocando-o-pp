@@ -12,13 +12,24 @@
 <h1>Rebocando o Pavilhão Philips</h1>
 
     <script type="module">
-        // import * as THREE from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
-        import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/build/three.module.js';
+        import * as THREE from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
+        // import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/build/three.module.js';
         import {OBJLoader2} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/OBJLoader2.js';
         import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/controls/OrbitControls.js';
         import { BasisTextureLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/BasisTextureLoader.js';
         import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/GLTFLoader.js';
         import { VRButton } from 'https://unpkg.com/three/examples/jsm/webxr/VRButton.js';
+        import { XRControllerModelFactory  } from 'https://unpkg.com/three/examples/jsm/webxr/XRControllerModelFactory.js';
+
+        let controller1, controller2;
+        let controllerGrip1, controllerGrip2;
+
+        let raycaster;
+
+        const intersected = [];
+        const tempMatrix = new THREE.Matrix4();
+
+        let group;
 
         const canvas = document.querySelector('#c');
         const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
@@ -48,33 +59,33 @@
         const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         camera.position.set(32,6,0);
 
-        let audioContext = new AudioContext();
-        let resonanceAudioScene = new ResonanceAudio(audioContext);
+        // let audioContext = new AudioContext();
+        // let resonanceAudioScene = new ResonanceAudio(audioContext);
 
-        resonanceAudioScene.output.connect(audioContext.destination);
+        // resonanceAudioScene.output.connect(audioContext.destination);
 
-        let roomDimensions = {
-            width: 35.0,
-            height: 15.0,
-            depth: 35.0,
-        };
+        // let roomDimensions = {
+        //     width: 35.0,
+        //     height: 15.0,
+        //     depth: 35.0,
+        // };
 
-        let roomMaterials = {
-            // Room wall materials
-            left: 'concrete-block-coarse',
-            right: 'concrete-block-coarse',
-            front: 'transparent',
-            back: 'transparent',
-            // Room floor
-            down: 'concrete-block-coarse',
-            // Room ceiling
-            up: 'concrete-block-coarse',
-        };
+        // let roomMaterials = {
+        //     // Room wall materials
+        //     left: 'concrete-block-coarse',
+        //     right: 'concrete-block-coarse',
+        //     front: 'transparent',
+        //     back: 'transparent',
+        //     // Room floor
+        //     down: 'concrete-block-coarse',
+        //     // Room ceiling
+        //     up: 'concrete-block-coarse',
+        // };
 
-        resonanceAudioScene.setRoomProperties(roomDimensions, roomMaterials);
+        // resonanceAudioScene.setRoomProperties(roomDimensions, roomMaterials);
 
-        // const listener = new THREE.AudioListener();
-        // camera.add( listener );
+        const listener = new THREE.AudioListener();
+        camera.add( listener );
 
         const controls = new OrbitControls(camera, canvas);
         controls.target.set(0, 0, 0);
@@ -100,7 +111,6 @@
             'glb/terrain_new4.glb',
             // called when the resource is loaded
             function ( gltf ) {
-
                 let terrain = gltf.scene;
                 terrain.rotation.y = -180;
                 // terrain.material = terrainMaterial;
@@ -109,15 +119,11 @@
             },
             // called while loading is progressing
             function ( xhr ) {
-
                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
             },
             // called when loading has errors
             function ( error ) {
-
                 console.log( 'An error happened in the terrain loader' );
-
             }
         );
 
@@ -128,7 +134,6 @@
             'glb/pp5.glb',
             // called when the resource is loaded
             function ( gltf ) {
-
                 let pp = gltf.scene;
                 pp.scale.set(1.25,1.25,1.25);
                 pp.rotation.y = 35;
@@ -139,18 +144,17 @@
             },
             // called while loading is progressing
             function ( xhr ) {
-
                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
             },
             // called when loading has errors
             function ( error ) {
-
                 console.log( 'An error happened in the pp loader' );
-
             }
         );
 
+        group = new THREE.Group();
+        scene.add( group );
+        
         var geometry = new THREE.SphereGeometry(0.25,10,10);
             
         var deltaPosition = 5;
@@ -194,45 +198,44 @@
             r += deltaAngle;
             
             //create a global audio source
-            // sound[index] = new THREE.PositionalAudio( listener );
+            sound[index] = new THREE.PositionalAudio( listener );
             
-            audioElement[index] = document.createElement('audio');
-            audioElement[index].src = 'sounds/' + index.toString() + '.mp3';
+            // audioElement[index] = document.createElement('audio');
+            // audioElement[index].src = 'sounds/' + index.toString() + '.mp3';
 
-            audioElementSource[index] = audioContext.createMediaElementSource(audioElement[index]);
+            // audioElementSource[index] = audioContext.createMediaElementSource(audioElement[index]);
             
-            sound[index] = resonanceAudioScene.createSource();
-            sound[index].rolloff = 'linear';//'logarithmic';
-            sound[index].minDistance = 1;
-            sound[index].maxDistance = 3;
-            audioElementSource[index].connect(sound[index].input);
+            // sound[index] = resonanceAudioScene.createSource();
+            // sound[index].rolloff = 'linear';//'logarithmic';
+            // sound[index].minDistance = 1;
+            // sound[index].maxDistance = 3;
+            // audioElementSource[index].connect(sound[index].input);
 
-            sound[index].setPosition(mesh[index].position.x, 
-                                    mesh[index].position.y, 
-                                    mesh[index].position.z);
+            // sound[index].setPosition(mesh[index].position.x, 
+            //                         mesh[index].position.y, 
+            //                         mesh[index].position.z);
 
-            // audioElement[index].play();
 
             // load a sound and set it as the Audio object's buffer
-            // var audioLoader = new THREE.AudioLoader();
-                    
-            // audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
-            //     sound[index].setBuffer( buffer );
-            //     sound[index].setLoop( true );
-            //     sound[index].setVolume( 2.0 / numberOfSources );
-            //     sound[index].play();
-            // });
+            var audioLoader = new THREE.AudioLoader();
+            audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
+                sound[index].setBuffer( buffer );
+                sound[index].setLoop( true );
+                sound[index].setVolume( 2.0 / numberOfSources );
+                sound[index].play();
+            });
            
-            scene.add(mesh[index]);
-            // mesh[index].add(sound[index]);
+            // scene.add(mesh[index]);
+            mesh[index].add(sound[index]);
+            group.add(mesh[index]);
         };
-        resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
 
-        window.addEventListener('click', ( ) => {
-            for (let index = 0; index < numberOfSources; index++) {
-                audioElement[index].play();
-            }
-        });
+        // resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
+        // window.addEventListener('click', ( ) => {
+        //     for (let index = 0; index < numberOfSources; index++) {
+        //         audioElement[index].play();
+        //     }
+        // });
 
         // Purple top spot light
         let purpleSpotLight = new THREE.SpotLight(0xA771C0);
@@ -264,8 +267,136 @@
         scene.add(greenGrassLight);
 
 
-        // const directionalLight = new THREE.DirectionalLight( "rgb(39, 90, 228)", 0.5 );
-        // scene.add( directionalLight );
+        // VR controller and intersection
+        controller1 = renderer.xr.getController( 0 );
+        controller1.addEventListener( 'selectstart', onSelectStart );
+        controller1.addEventListener( 'selectend', onSelectEnd );
+        scene.add( controller1 );
+
+        controller2 = renderer.xr.getController( 1 );
+        controller2.addEventListener( 'selectstart', onSelectStart );
+        controller2.addEventListener( 'selectend', onSelectEnd );
+        scene.add( controller2 );
+
+        const controllerModelFactory = new XRControllerModelFactory();
+
+        controllerGrip1 = renderer.xr.getControllerGrip( 0 );
+        controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
+        scene.add( controllerGrip1 );
+
+        controllerGrip2 = renderer.xr.getControllerGrip( 1 );
+        controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
+        scene.add( controllerGrip2 );
+
+        //
+
+        const tempGeometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
+
+        const line = new THREE.Line( tempGeometry );
+        line.name = 'line';
+        line.scale.z = 5;
+
+        controller1.add( line.clone() );
+        controller2.add( line.clone() );
+
+        raycaster = new THREE.Raycaster();
+
+        // function onWindowResize() {
+
+        //     camera.aspect = window.innerWidth / window.innerHeight;
+        //     camera.updateProjectionMatrix();
+
+        //     renderer.setSize( window.innerWidth, window.innerHeight );
+
+        // }
+
+        function onSelectStart( event ) {
+
+            const controller = event.target;
+
+            const intersections = getIntersections( controller );
+
+            if ( intersections.length > 0 ) {
+
+                const intersection = intersections[ 0 ];
+
+                const object = intersection.object;
+                object.material.emissive.b = 1;
+                controller.attach( object );
+
+                controller.userData.selected = object;
+
+            }
+
+        }
+
+        function onSelectEnd( event ) {
+
+            const controller = event.target;
+
+            if ( controller.userData.selected !== undefined ) {
+
+                const object = controller.userData.selected;
+                object.material.emissive.b = 0;
+                group.attach( object );
+
+                controller.userData.selected = undefined;
+
+            }
+
+
+        }
+
+        function getIntersections( controller ) {
+
+            tempMatrix.identity().extractRotation( controller.matrixWorld );
+
+            raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+            raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+
+            return raycaster.intersectObjects( group.children );
+
+        }
+
+        function intersectObjects( controller ) {
+
+            // Do not highlight when already selected
+
+            if ( controller.userData.selected !== undefined ) return;
+
+            const line = controller.getObjectByName( 'line' );
+            const intersections = getIntersections( controller );
+
+            if ( intersections.length > 0 ) {
+
+                const intersection = intersections[ 0 ];
+
+                const object = intersection.object;
+                object.material.emissive.r = 1;
+                intersected.push( object );
+
+                line.scale.z = intersection.distance;
+
+            } else {
+
+                line.scale.z = 5;
+
+            }
+
+        }
+
+        function cleanIntersected() {
+
+            while ( intersected.length ) {
+
+                const object = intersected.pop();
+                object.material.emissive.r = 0;
+
+            }
+
+        }
+
+
 
         function resizeRendererToDisplaySize(renderer) {
             const canvas = renderer.domElement;
@@ -287,8 +418,12 @@
             camera.updateProjectionMatrix();
             }
             
+            cleanIntersected();
+            intersectObjects( controller1 );
+            intersectObjects( controller2 );
+
             renderer.render(scene, camera);
-            resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
+            // resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
             // requestAnimationFrame(render);
         }
 
