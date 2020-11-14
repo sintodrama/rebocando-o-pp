@@ -132,7 +132,9 @@
                 let pp = gltf.scene;
                 pp.scale.set(1.25,1.25,1.25);
                 pp.rotation.y = 35;
-                console.log (pp);
+                // console.log (pp);
+                pp.castShadow = true;
+                pp.receiveShadow = true;
                 scene.add( pp );
             },
             // called while loading is progressing
@@ -166,6 +168,15 @@
         let indexMat = 0;
         let audioElement = [];
         let audioElementSource = [];
+        let emissiveColor = [
+            "rgb(182,164,168)",
+            "rgb(53,199,238)",
+            "rgb(42,147,9)",
+            "rgb(115,179,71)",
+            "rgb(0,72,185)",
+            "rgb(171,135,135)",
+            "rgb(102,109,191)",
+        ];
 
         for (let index = 0; index < numberOfSources; index++) {
             // materialColor[index] = new THREE.Color(Math.random(),Math.random(),Math.random());
@@ -173,8 +184,9 @@
             // mesh[index] = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: new THREE.Color(Math.random(),Math.random(),Math.random())}));
             mesh[index] = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
                 map: new THREE.TextureLoader().load( 'textures/spheres/'+indexMat+'.jpg'),
-                emissive: new THREE.Color(Math.random(),Math.random(),Math.random()),
-                emissiveIntensity : 0.05}));
+                // emissive: new THREE.Color(Math.random(),Math.random(),Math.random()),
+                emissive: new THREE.Color(emissiveColor[indexMat]),
+                emissiveIntensity : 0.5}));
             if (indexMat < 6) {indexMat += 1 } else {indexMat = 1 };
             mesh[index].position.x = initialPosition.x + radialDistance*Math.sin(r);
             mesh[index].position.y = initialPosition.y;
