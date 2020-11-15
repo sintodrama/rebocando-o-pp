@@ -57,7 +57,7 @@
         const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         camera.position.set(32,6,0);
 
-        let audioContext = new AudioContext();
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
         let resonanceAudioScene = new ResonanceAudio(audioContext);
 
         resonanceAudioScene.output.connect(audioContext.destination);
@@ -214,7 +214,8 @@
                                     mesh[index].position.y, 
                                     mesh[index].position.z);
 
-
+            audioElement[index].play();
+            
             // load a sound and set it as the Audio object's buffer
             // var audioLoader = new THREE.AudioLoader();
             // audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
@@ -230,7 +231,7 @@
         };
 
         // resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
-        window.addEventListener('touchstart click', ( ) => {
+        window.addEventListener('click', ( ) => {
             for (let index = 0; index < numberOfSources; index++) {
                 audioElement[index].play();
                 // sound[index].play();
