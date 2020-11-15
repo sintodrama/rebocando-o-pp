@@ -13,13 +13,11 @@
 
     <script type="module">
         import * as THREE from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
-        // import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/build/three.module.js';
-        import {OBJLoader2} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/OBJLoader2.js';
-        import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/controls/OrbitControls.js';
-        import { BasisTextureLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/BasisTextureLoader.js';
-        import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
+        import { BasisTextureLoader } from 'https://unpkg.com/three/examples/jsm/loaders/BasisTextureLoader.js';
+        import { GLTFLoader } from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
         import { VRButton } from 'https://unpkg.com/three/examples/jsm/webxr/VRButton.js';
-        import { XRControllerModelFactory  } from 'https://unpkg.com/three/examples/jsm/webxr/XRControllerModelFactory.js';
+        import { XRControllerModelFactory } from 'https://unpkg.com/three/examples/jsm/webxr/XRControllerModelFactory.js';
 
         let controller1, controller2;
         let controllerGrip1, controllerGrip2;
@@ -59,33 +57,33 @@
         const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         camera.position.set(32,6,0);
 
-        // let audioContext = new AudioContext();
-        // let resonanceAudioScene = new ResonanceAudio(audioContext);
+        let audioContext = new AudioContext();
+        let resonanceAudioScene = new ResonanceAudio(audioContext);
 
-        // resonanceAudioScene.output.connect(audioContext.destination);
+        resonanceAudioScene.output.connect(audioContext.destination);
 
-        // let roomDimensions = {
-        //     width: 35.0,
-        //     height: 15.0,
-        //     depth: 35.0,
-        // };
+        let roomDimensions = {
+            width: 35.0,
+            height: 15.0,
+            depth: 35.0,
+        };
 
-        // let roomMaterials = {
-        //     // Room wall materials
-        //     left: 'concrete-block-coarse',
-        //     right: 'concrete-block-coarse',
-        //     front: 'transparent',
-        //     back: 'transparent',
-        //     // Room floor
-        //     down: 'concrete-block-coarse',
-        //     // Room ceiling
-        //     up: 'concrete-block-coarse',
-        // };
+        let roomMaterials = {
+            // Room wall materials
+            left: 'concrete-block-coarse',
+            right: 'concrete-block-coarse',
+            front: 'transparent',
+            back: 'transparent',
+            // Room floor
+            down: 'concrete-block-coarse',
+            // Room ceiling
+            up: 'concrete-block-coarse',
+        };
 
-        // resonanceAudioScene.setRoomProperties(roomDimensions, roomMaterials);
+        resonanceAudioScene.setRoomProperties(roomDimensions, roomMaterials);
 
-        const listener = new THREE.AudioListener();
-        camera.add( listener );
+        // const listener = new THREE.AudioListener();
+        // camera.add( listener );
 
         const controls = new OrbitControls(camera, canvas);
         controls.target.set(0, 0, 0);
@@ -131,7 +129,8 @@
 
         ppLoader.load(
             // resource URL
-            'glb/pp5.glb',
+            // 'glb/pp5.glb',
+            'glb/pp_new_with_floor.glb',
             // called when the resource is loaded
             function ( gltf ) {
                 let pp = gltf.scene;
@@ -198,52 +197,52 @@
             r += deltaAngle;
             
             //create a global audio source
-            sound[index] = new THREE.PositionalAudio( listener );
+            // sound[index] = new THREE.PositionalAudio( listener );
             
-            // audioElement[index] = document.createElement('audio');
-            // audioElement[index].src = 'sounds/' + index.toString() + '.mp3';
+            audioElement[index] = document.createElement('audio');
+            audioElement[index].src = 'sounds/' + index.toString() + '.mp3';
 
-            // audioElementSource[index] = audioContext.createMediaElementSource(audioElement[index]);
+            audioElementSource[index] = audioContext.createMediaElementSource(audioElement[index]);
             
-            // sound[index] = resonanceAudioScene.createSource();
-            // sound[index].rolloff = 'linear';//'logarithmic';
-            // sound[index].minDistance = 1;
-            // sound[index].maxDistance = 3;
-            // audioElementSource[index].connect(sound[index].input);
+            sound[index] = resonanceAudioScene.createSource();
+            sound[index].rolloff = 'linear';//'logarithmic';
+            sound[index].minDistance = 0.5;
+            sound[index].maxDistance = 100;
+            audioElementSource[index].connect(sound[index].input);
 
-            // sound[index].setPosition(mesh[index].position.x, 
-            //                         mesh[index].position.y, 
-            //                         mesh[index].position.z);
+            sound[index].setPosition(mesh[index].position.x, 
+                                    mesh[index].position.y, 
+                                    mesh[index].position.z);
 
 
             // load a sound and set it as the Audio object's buffer
-            var audioLoader = new THREE.AudioLoader();
-            audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
-                sound[index].setBuffer( buffer );
-                sound[index].setLoop( true );
-                sound[index].setVolume( 4.0 / numberOfSources );
-                // sound[index].play();
-            });
+            // var audioLoader = new THREE.AudioLoader();
+            // audioLoader.load('sounds/' + index.toString() + '.mp3', function( buffer ) {
+            //     sound[index].setBuffer( buffer );
+            //     sound[index].setLoop( true );
+            //     sound[index].setVolume( 4.0 / numberOfSources );
+            //     // sound[index].play();
+            // });
            
             // scene.add(mesh[index]);
-            mesh[index].add(sound[index]);
+            // mesh[index].add(sound[index]);
             group.add(mesh[index]);
         };
 
         // resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
         window.addEventListener('click', ( ) => {
             for (let index = 0; index < numberOfSources; index++) {
-                // audioElement[index].play();
-                sound[index].play();
+                audioElement[index].play();
+                // sound[index].play();
             }
         });
 
-        window.addEventListener('touchstart', ( ) => {
-            for (let index = 0; index < numberOfSources; index++) {
-                // audioElement[index].play();
-                sound[index].play();
-            }
-        });
+        // window.addEventListener('touchstart', ( ) => {
+        //     for (let index = 0; index < numberOfSources; index++) {
+        //         // audioElement[index].play();
+        //         sound[index].play();
+        //     }
+        // });
 
         // Purple top spot light
         let purpleSpotLight = new THREE.SpotLight(0xA771C0);
@@ -417,6 +416,11 @@
             return needResize;
         }
 
+        const tempForwardVector = new THREE.Vector3();
+        const tempUpVector = new THREE.Vector3();
+        // var headPos = renderer.xr.getCamera(camera).getWorldPosition(tempVec);
+        // console.log(renderer.xr.getCamera(camera));
+
         function render(time) {
             time *= 0.001;
 
@@ -431,7 +435,23 @@
             intersectObjects( controller2 );
 
             renderer.render(scene, camera);
-            // resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
+
+            tempForwardVector.set(0, 0, -1);
+            tempForwardVector.applyQuaternion(camera.quaternion);
+
+            tempUpVector.set(0, 1, 0);
+            tempUpVector.applyQuaternion(camera.quaternion);
+
+            resonanceAudioScene.setListenerOrientation(
+                tempForwardVector.x,
+                tempForwardVector.y,
+                tempForwardVector.z,
+                tempUpVector.x,
+                tempUpVector.y,
+                tempUpVector.z
+            );
+            
+            resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
             // requestAnimationFrame(render);
         }
 
