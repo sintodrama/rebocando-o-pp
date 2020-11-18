@@ -1,7 +1,6 @@
 import {
     renderer,
     camera,
-    scene,
 } from './src/scene.js';
 
 import {
@@ -13,12 +12,15 @@ import {
     controller2,
     cleanIntersected,
     intersectObjects,
-    teleportCallBack
+    teleportCallBack,
+    cameraRig,
+    scene,
 } from './src/vr-control.js';
 
 import {
     Vector3
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
+
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -47,7 +49,7 @@ function render(time) {
     
     cleanIntersected();
     intersectObjects( controller1 );
-    intersectObjects( controller2 );
+    // intersectObjects( controller2 );
     teleportCallBack();
 
     renderer.render(scene, camera);

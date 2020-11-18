@@ -6,7 +6,8 @@ import {
     LineBasicMaterial,
     PointLight,
     Raycaster,
-    BufferAttribute
+    BufferAttribute,
+    Group
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
 
 import {scene, renderer, camera} from './scene.js';
@@ -53,7 +54,7 @@ line.name = 'line';
 line.scale.z = 5;
 
 controller1.add( line.clone() );
-controller2.add( line.clone() );
+// controller2.add( line.clone() );
 
 raycaster = new Raycaster();
 
@@ -185,14 +186,15 @@ function onSelectStartMove() {
     // scene.add(guidesprite);
 }
 
-function onSelectEndMove() {
+function onSelectEndMove(targetPoint) {
     if (guidingController === this) {
-
-        // first work out vector from feet to cursor
+        const headPos = renderer.xr.getCamera(camera).position;
+        const offset = targetPoint.sub(headPos);
+        offset.y = 0;
 
         // feet position
-        const feetPos = renderer.xr.getCamera(camera).getWorldPosition(tempVec);
-        feetPos.y = 0;
+        // const feetPos = renderer.xr.getCamera(camera).getWorldPosition(tempVec);
+        // feetPos.y = 0;
 
         // cursor position
         const p = guidingController.getWorldPosition(tempVecP);
@@ -202,10 +204,11 @@ function onSelectEndMove() {
         const cursorPos = positionAtT(tempVec1,t,p,v,g);
 
         // Offset
-        const offset = cursorPos.addScaledVector(feetPos ,-1);
+        // const offset = cursorPos.addScaledVector(feetPos ,-1);
 
         // Do the teleport
-        camera.position.add(offset);
+        // camera.position.add(offset);
+        cameraRig.position.add(offset);
 
         // clean up
         guidingController = null;
@@ -245,4 +248,11 @@ function teleportCallBack() {
     }
 };
 
-export {controller1, controller2, cleanIntersected, intersectObjects, teleportCallBack};
+var cameraRig = new Group();
+cameraRig.add(camera);
+cameraRig.add(controller1);
+cameraRig.add(controller2);
+cameraRig.position.set(32,6,0)
+scene.add(cameraRig);
+
+export {controller1, controller2, cleanIntersected, intersectObjects, teleportCallBack, cameraRig};

@@ -6,7 +6,8 @@ import {
     PointLight,
     RGBDEncoding,
     TextureLoader,
-    WebGLCubeRenderTarget
+    WebGLCubeRenderTarget,
+    Group
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
 
 import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
@@ -24,8 +25,11 @@ const fov = 75;
 const aspect = 2;  // the canvas default
 const near = 0.1;
 const far = 2000;
+
+
 const camera = new PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(32,6,0);
+// camera.position.set(32,6,0);
+
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0, 0);
