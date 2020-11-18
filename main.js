@@ -1,6 +1,7 @@
 import {
     renderer,
     camera,
+    scene,
 } from './src/scene.js';
 
 import {
@@ -13,8 +14,6 @@ import {
     cleanIntersected,
     intersectObjects,
     teleportCallBack,
-    cameraRig,
-    scene,
 } from './src/vr-control.js';
 
 import {

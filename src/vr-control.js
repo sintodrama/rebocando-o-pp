@@ -26,12 +26,12 @@ const tempMatrix = new Matrix4();
 const controller1 = renderer.xr.getController( 0 );
 controller1.addEventListener( 'selectstart', onSelectStartGrab );
 controller1.addEventListener( 'selectend', onSelectEndGrab );
-scene.add( controller1 );
+// scene.add( controller1 );
 
 const controller2 = renderer.xr.getController( 1 );
 controller2.addEventListener( 'selectstart', onSelectStartMove );
 controller2.addEventListener( 'selectend', onSelectEndMove );
-scene.add( controller2 );
+// scene.add( controller2 );
 
 let guidingController = null;
 
@@ -44,8 +44,6 @@ scene.add( controllerGrip1 );
 const controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 scene.add( controllerGrip2 );
-
-//
 
 const tempGeometry = new BufferGeometry().setFromPoints( [ new Vector3( 0, 0, 0 ), new Vector3( 0, 0, - 1 ) ] );
 
@@ -252,7 +250,7 @@ var cameraRig = new Group();
 cameraRig.add(camera);
 cameraRig.add(controller1);
 cameraRig.add(controller2);
-cameraRig.position.set(32,6,0)
+// cameraRig.position.set(32,6,0)
 scene.add(cameraRig);
 
 export {controller1, controller2, cleanIntersected, intersectObjects, teleportCallBack, cameraRig};

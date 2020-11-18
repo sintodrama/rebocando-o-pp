@@ -28,7 +28,7 @@ const far = 2000;
 
 
 const camera = new PerspectiveCamera(fov, aspect, near, far);
-// camera.position.set(32,6,0);
+camera.position.set(32,6,0);
 
 
 const controls = new OrbitControls(camera, canvas);
