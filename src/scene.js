@@ -7,7 +7,12 @@ import {
     RGBDEncoding,
     TextureLoader,
     WebGLCubeRenderTarget,
-    Group
+    Group,
+    SphereGeometry,
+    Vector3,
+    Mesh,
+    MeshPhongMaterial,
+    Color
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
 
 import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
@@ -124,9 +129,48 @@ greenGrassLight.intensity = 5;
 greenGrassLight.distance = 150;
 scene.add(greenGrassLight);
 
+
+// spheres
+let sphereGroup = new Group();
+scene.add( sphereGroup );
+
+var geometry = new SphereGeometry(0.25,10,10);
+let radialDistance = 5;
+let numberOfSources = 12;
+var spheres = [];
+let initialPosition = new Vector3(0,1.5,0);
+var deltaAngle = 2 * Math.PI / numberOfSources;
+var r = 0;
+let indexMat = 0;
+let emissiveColor = [
+    "rgb(182,164,168)",
+    "rgb(53,199,238)",
+    "rgb(42,147,9)",
+    "rgb(115,179,71)",
+    "rgb(0,72,185)",
+    "rgb(171,135,135)",
+    "rgb(102,109,191)",
+];
+
+for (let index = 0; index < numberOfSources; index++) {
+    spheres[index] = new Mesh(geometry, new MeshPhongMaterial({
+        map: new TextureLoader().load( 'textures/spheres/'+indexMat+'.jpg'),
+        emissive: new Color(emissiveColor[indexMat]),
+        emissiveIntensity : 0.5}));
+    if (indexMat < 6) {indexMat += 1 } else {indexMat = 1 };
+    spheres[index].position.x = initialPosition.x + radialDistance*Math.sin(r);
+    spheres[index].position.y = initialPosition.y;
+    spheres[index].position.z = initialPosition.z + radialDistance*Math.cos(r);
+    r += deltaAngle;
+    sphereGroup.add(spheres[index]);
+    // resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
+};
+
 export {
     scene,
     camera,
-    renderer
+    renderer,
+    spheres,
+    sphereGroup
 }
         

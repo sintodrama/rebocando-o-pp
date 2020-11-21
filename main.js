@@ -5,7 +5,12 @@ import {
 } from './src/scene.js';
 
 import {
-    resonanceAudioScene
+    resonanceAudioScene, 
+    updateAudioNodes,
+    playAudio,
+    pauseAudio,
+    audioContext,
+    audioSources
 } from './src/audio-sources.js';
 
 import {
@@ -20,6 +25,57 @@ import {
     Vector3
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
 
+console.log(audioSources);
+
+// window.addEventListener('blur', () => {
+//     // As a general rule you should mute any sounds your page is playing
+//     // whenever the page loses focus.
+//     // pauseAudio(audioSources);
+//     console.log('BLUR!');
+//   });
+
+// window.addEventListener('click', ( ) => {
+
+//     if (audioContext.state == 'running')
+//         pauseAudio(audioSources);
+//         // audioContext.suspend();
+
+//     if (audioContext.state == 'suspended')
+//         playAudio(audioSources);
+
+//     // audioContext.resume();
+//     // for (let index = 0; index < numberOfSources; index++) {
+//     //     audioElement[index].play();
+//     //     // sound[index].play();
+//     // }
+//     // for (let source of audioSources) {
+//     //     source.bufferSource.start(0);
+//     // }
+//     // console.log(audioSources);
+//     console.log('CLICK!');
+//     // playAudio(audioSources);
+// });
+
+// select our play button
+const playButton = document.querySelector('button');
+
+playButton.addEventListener('click', function() {
+
+    // check if context is in suspended state (autoplay policy)
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+
+    // play or pause track depending on state
+    if (this.dataset.playing === 'false') {
+        playAudio(audioSources);
+        this.dataset.playing = 'true';
+    } else if (this.dataset.playing === 'true') {
+        pauseAudio(audioSources);
+        this.dataset.playing = 'false';
+    }
+
+}, false);
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -50,7 +106,7 @@ function render(time) {
     intersectObjects( controller1 );
     // intersectObjects( controller2 );
     teleportCallBack();
-
+    updateAudioNodes();
     renderer.render(scene, camera);
 
     tempForwardVector.set(0, 0, -1);

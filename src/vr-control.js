@@ -10,10 +10,10 @@ import {
     Group
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
 
-import {scene, renderer, camera} from './scene.js';
+import {scene, renderer, camera, sphereGroup} from './scene.js';
 import { XRControllerModelFactory } from 'https://unpkg.com/three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { VRButton } from 'https://unpkg.com/three/examples/jsm/webxr/VRButton.js';
-import {group} from './audio-sources.js';
+// import {group} from './audio-sources.js';
 
 document.body.appendChild(VRButton.createButton(renderer));
 
@@ -119,7 +119,7 @@ function onSelectEndGrab( event ) {
 
         const object = controller.userData.selected;
         object.material.emissive.b = 0;
-        group.attach( object );
+        sphereGroup.attach( object );
 
         controller.userData.selected = undefined;
 
@@ -135,7 +135,7 @@ function getIntersections( controller ) {
     raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
     raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-    return raycaster.intersectObjects( group.children );
+    return raycaster.intersectObjects( sphereGroup.children );
 
 }
 

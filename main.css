@@ -35,3 +35,17 @@ h1 {
     background: url(textures/skybox.png) no-repeat center center;
     background-size: cover;
 }
+
+#playButton {
+    position: absolute; 
+    bottom: 1em; 
+    left:.5em;
+    background-color: rgb(98, 228, 120);
+    color: rgb(90, 58, 207);
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1em;
+    line-height: .8em;
+    border: 2px solid rgb(196, 85, 146);
+    padding: .2em; 
+}
