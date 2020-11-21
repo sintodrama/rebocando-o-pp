@@ -2,6 +2,8 @@ import {
     renderer,
     camera,
     scene,
+    bluePointLight,
+    oscLight
 } from './src/scene.js';
 
 import {
@@ -10,7 +12,8 @@ import {
     playAudio,
     pauseAudio,
     audioContext,
-    audioSources
+    audioSources,
+    customRolloff
 } from './src/audio-sources.js';
 
 import {
@@ -24,37 +27,6 @@ import {
 import {
     Vector3
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
-
-console.log(audioSources);
-
-// window.addEventListener('blur', () => {
-//     // As a general rule you should mute any sounds your page is playing
-//     // whenever the page loses focus.
-//     // pauseAudio(audioSources);
-//     console.log('BLUR!');
-//   });
-
-// window.addEventListener('click', ( ) => {
-
-//     if (audioContext.state == 'running')
-//         pauseAudio(audioSources);
-//         // audioContext.suspend();
-
-//     if (audioContext.state == 'suspended')
-//         playAudio(audioSources);
-
-//     // audioContext.resume();
-//     // for (let index = 0; index < numberOfSources; index++) {
-//     //     audioElement[index].play();
-//     //     // sound[index].play();
-//     // }
-//     // for (let source of audioSources) {
-//     //     source.bufferSource.start(0);
-//     // }
-//     // console.log(audioSources);
-//     console.log('CLICK!');
-//     // playAudio(audioSources);
-// });
 
 // select our play button
 const playButton = document.querySelector('button');
@@ -92,22 +64,36 @@ const tempForwardVector = new Vector3();
 const tempUpVector = new Vector3();
 // var headPos = renderer.xr.getCamera(camera).getWorldPosition(tempVec);
 // console.log(renderer.xr.getCamera(camera));
+let phase = 0;
+let freq = 0.1;
+let dt = 0.01;
+let minIntensity = 0.5;
+let dInt = 10;
 
 function render(time) {
     time *= 0.001;
 
     if (resizeRendererToDisplaySize(renderer)) {
-    const canvas = renderer.domElement;
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
-    camera.updateProjectionMatrix();
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
     }
+    if (phase < (2 * Math.PI)) {
+        phase += (2 * Math.PI * freq * dt);
+    } else {
+        phase = 0.0;
+    }
+    // console.log(phase);
     
+    // oscLight(bluePointLight,phase,minIntensity,dInt);
+
     cleanIntersected();
     intersectObjects( controller1 );
     // intersectObjects( controller2 );
     teleportCallBack();
     updateAudioNodes();
-    renderer.render(scene, camera);
+    customRolloff(camera);
+    
 
     tempForwardVector.set(0, 0, -1);
     tempForwardVector.applyQuaternion(camera.quaternion);
@@ -125,6 +111,8 @@ function render(time) {
     );
     
     resonanceAudioScene.setListenerPosition(camera.position.x,camera.position.y,camera.position.z);
+
+    renderer.render(scene, camera);
     // requestAnimationFrame(render);
 }
 

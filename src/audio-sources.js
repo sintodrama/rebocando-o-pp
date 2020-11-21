@@ -1,17 +1,6 @@
 import {spheres} from './scene.js';
 
-import {
-    Group,
-    SphereGeometry,
-    Vector3,
-    Mesh,
-    MeshPhongMaterial,
-    TextureLoader,
-    Color,
-    AudioListener,
-    PositionalAudio,
-    AudioLoader
-} from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
+import {Vector3} from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
 
 let AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioContext = new AudioContext();
@@ -22,12 +11,15 @@ audioContext.suspend();
 // const listener = new AudioListener();
 // camera.add( listener );
 
-resonanceAudioScene.output.connect(audioContext.destination);
+var gainNode = audioContext.createGain()
+
+resonanceAudioScene.output.connect(gainNode);
+gainNode.connect(audioContext.destination);
 
 let roomDimensions = {
-    width: 35.0,
-    height: 15.0,
-    depth: 35.0,
+    width: 50.0,
+    height: 25.0,
+    depth: 50.0,
 };
 
 let roomMaterials = {
@@ -116,27 +108,13 @@ function getLoudnessScale(analyser) {
 function updateAudioNodes() {
     let index = 0;
     for (let source of audioSources) {
-        // if (!source.node) {
-        // source.node = stereo.clone();
-        // source.node.visible = true;
-        // source.node.selectable = true;
-        // scene.addNode(source.node);
-        // }
-
-        // let node = source.node;
-        // let matrix = node.matrix;
-
-        // // Move the node to the right location.
-        // mat4.identity(matrix);
-        // mat4.translate(matrix, matrix, source.position);
-        // mat4.rotateY(matrix, matrix, source.rotateY);
-
         // Scale it based on loudness of the audio channel
         let scale = getLoudnessScale(source.analyser);
         // console.log(scale);
         // scale /= 0.3;
-        // mat4.scale(matrix, matrix, [scale, scale, scale]);
         // spheres[index].scale.set(new Vector3(scale,scale,scale));
+        spheres[index].material.emissiveIntensity = 2*(scale - 0.3);
+        // console.log(spheres[index].emissiveIntensity);
         index++;
     }
 }
@@ -174,31 +152,6 @@ function pauseAudio(inputSources) {
     // }
     console.log('Audio Paused!');
 }
-
-// let radialDistance = 5;
-// let initialPosition = [0,2,0];
-// var deltaPosition = 5;
-// let numberOfSources = 12;
-// var mesh = [];
-// var randomRotation = [];
-// var materialColor = [];
-// var material = []; 
-// var sound = [];
-// // let initialPosition = new Vector3(0,2,0);
-// var deltaAngle = 2 * Math.PI / numberOfSources;
-// var r = 0;
-// let indexMat = 0;
-// let audioElement = [];
-// let audioElementSource = [];
-// let emissiveColor = [
-//     "rgb(182,164,168)",
-//     "rgb(53,199,238)",
-//     "rgb(42,147,9)",
-//     "rgb(115,179,71)",
-//     "rgb(0,72,185)",
-//     "rgb(171,135,135)",
-//     "rgb(102,109,191)",
-// ];
 
 // let audioPromises = [];
 // for (let index = 0; index < spheres.length; index++) {
@@ -311,15 +264,15 @@ Promise.all([
                     spheres[11].position.y,
                     spheres[11].position.z
                     ],
+            }),
+        createAudioSource({
+            url: 'sounds/12.wav',
+            position: [
+                    spheres[12].position.x,
+                    spheres[12].position.y,
+                    spheres[12].position.z
+                    ],
             })
-        // createAudioSource({
-        //     url: 'sounds/12.wav',
-        //     position: [
-        //             spheres[12].position.x,
-        //             spheres[12].position.y,
-        //             spheres[12].position.z
-        //             ],
-        //     })
 ]).then((sources) => {
     console.log('Completion of source creation');
     audioSources = sources;
@@ -338,6 +291,17 @@ Promise.all([
     // scene.addNode(playButton);
   });
 
+
+  function customRolloff(listener) {
+    let origin = new Vector3(0,0,0);
+    let distance = listener.position.distanceTo(origin);
+    let maxRadius = roomDimensions.depth/2;
+    let gain = 1.0 - (distance/maxRadius)**0.15;
+    if ( gain < 0) {
+        gain = 0.0;
+    } 
+    gainNode.gain.value = gain; // 10 %
+  }
 
 
 
@@ -399,5 +363,6 @@ export {
     updateAudioNodes,
     playAudio,
     pauseAudio,
-    audioContext
+    audioContext,
+    customRolloff
 }

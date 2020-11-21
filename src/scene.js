@@ -4,6 +4,8 @@ import {
     Scene,
     SpotLight,
     PointLight,
+    AmbientLight,
+    HemisphereLight,
     RGBDEncoding,
     TextureLoader,
     WebGLCubeRenderTarget,
@@ -101,42 +103,54 @@ ppLoader.load(
 );
 
 // Purple top spot light
-let purpleSpotLight = new SpotLight(0xA771C0);
-purpleSpotLight.position.set( 0, 150, 0 );
-purpleSpotLight.intensity = 0.75;
-purpleSpotLight.distance = 170;
-purpleSpotLight.angle = Math.PI/2;
-scene.add(purpleSpotLight);
+// let purpleSpotLight = new SpotLight(0xA771C0);
+// purpleSpotLight.position.set( 0, 150, 0 );
+// purpleSpotLight.intensity = 0.5;
+// purpleSpotLight.distance = 170;
+// purpleSpotLight.angle = Math.PI/2;
+// scene.add(purpleSpotLight);
 
 // Main blue point light
-let bluePointLight = new PointLight(0x368DF3);
-bluePointLight.position.set( 0, 50, 0 );
-bluePointLight.intensity = 4.5;
-bluePointLight.distance = 200;
+// let bluePointLight = new PointLight(0x368DF3);
+let bluePointLight = new SpotLight(0x368DF3);
+// let bluePointLight = new HemisphereLight(0x368DF3,0x368DF3,0.5);
+bluePointLight.position.set( 0, -20000, 0 );
+bluePointLight.intensity = 1.0;
+bluePointLight.angle = Math.PI/2;
+// bluePointLight.distance = 200;
+bluePointLight.decay = 2;
 scene.add(bluePointLight);
 
 // Pavilion blue point light
-let pavPointLight = new PointLight(0x4B26CF);
-pavPointLight.position.set( -25, 25, -25 );
-pavPointLight.intensity = 1.5;
-pavPointLight.distance = 140;
+// let pavPointLight = new PointLight(0x4B26CF);
+let pavPointLight = new PointLight(0x368DF3);
+pavPointLight.position.set( 0, 250000, 0 );
+pavPointLight.intensity = 1;
+// pavPointLight.distance = 140;
 scene.add(pavPointLight);
 
 // grass green point light
 let greenGrassLight = new PointLight(0x3CD667);
-greenGrassLight.position.set( 125, 15, -50 );
-greenGrassLight.intensity = 5;
-greenGrassLight.distance = 150;
+greenGrassLight.position.set( 125, 1500, -50 );
+greenGrassLight.intensity = 0.005;
+// greenGrassLight.distance = 150;
 scene.add(greenGrassLight);
 
+
+function oscLight(light, phase, min, di)
+{
+    light.intensity = min + di*(1 + Math.cos(phase))/2;
+    // console.log(Math.cos(phase));
+
+}
 
 // spheres
 let sphereGroup = new Group();
 scene.add( sphereGroup );
 
-var geometry = new SphereGeometry(0.25,10,10);
+var geometry = new SphereGeometry(0.25,25,25);
 let radialDistance = 5;
-let numberOfSources = 12;
+let numberOfSources = 13;
 var spheres = [];
 let initialPosition = new Vector3(0,1.5,0);
 var deltaAngle = 2 * Math.PI / numberOfSources;
@@ -156,7 +170,7 @@ for (let index = 0; index < numberOfSources; index++) {
     spheres[index] = new Mesh(geometry, new MeshPhongMaterial({
         map: new TextureLoader().load( 'textures/spheres/'+indexMat+'.jpg'),
         emissive: new Color(emissiveColor[indexMat]),
-        emissiveIntensity : 0.5}));
+        emissiveIntensity : 0.0}));
     if (indexMat < 6) {indexMat += 1 } else {indexMat = 1 };
     spheres[index].position.x = initialPosition.x + radialDistance*Math.sin(r);
     spheres[index].position.y = initialPosition.y;
@@ -171,6 +185,8 @@ export {
     camera,
     renderer,
     spheres,
-    sphereGroup
+    sphereGroup,
+    bluePointLight,
+    oscLight
 }
         
