@@ -64,9 +64,10 @@ terrainLoader.load(
     function ( gltf ) {
         let terrain = gltf.scene;
         terrain.rotation.y = -180;
-        // terrain.material = terrainMaterial;
+        terrain.children[0].material.emissive = new Color(0x368DF3);
+        terrain.children[0].material.emissiveIntensity = 0.1;
         scene.add( terrain );
-        // console.log(terrain.material.map);
+        // console.log(terrain.children[0].material);
     },
     // called while loading is progressing
     function ( xhr ) {
@@ -87,7 +88,8 @@ ppLoader.load(
         let pp = gltf.scene;
         pp.scale.set(1.25,1.25,1.25);
         pp.rotation.y = 35;
-        // console.log (pp);
+        pp.children[1].material.roughness = 1.0
+        console.log (pp.children[1].material);
         pp.castShadow = true;
         pp.receiveShadow = true;
         scene.add( pp );
@@ -114,8 +116,8 @@ ppLoader.load(
 // let bluePointLight = new PointLight(0x368DF3);
 let bluePointLight = new SpotLight(0x368DF3);
 // let bluePointLight = new HemisphereLight(0x368DF3,0x368DF3,0.5);
-bluePointLight.position.set( 0, -20000, 0 );
-bluePointLight.intensity = 1.0;
+bluePointLight.position.set( 0, -200, 0 );
+bluePointLight.intensity = 0.5;
 bluePointLight.angle = Math.PI/2;
 // bluePointLight.distance = 200;
 bluePointLight.decay = 2;
@@ -124,15 +126,15 @@ scene.add(bluePointLight);
 // Pavilion blue point light
 // let pavPointLight = new PointLight(0x4B26CF);
 let pavPointLight = new PointLight(0x368DF3);
-pavPointLight.position.set( 0, 250000, 0 );
-pavPointLight.intensity = 1;
+pavPointLight.position.set( 0, 2500, 0 );
+pavPointLight.intensity = 1.5;
 // pavPointLight.distance = 140;
 scene.add(pavPointLight);
 
 // grass green point light
 let greenGrassLight = new PointLight(0x3CD667);
-greenGrassLight.position.set( 125, 1500, -50 );
-greenGrassLight.intensity = 0.005;
+greenGrassLight.position.set( 125, 1500000, -25 );
+greenGrassLight.intensity = 0.5;
 // greenGrassLight.distance = 150;
 scene.add(greenGrassLight);
 
