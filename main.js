@@ -20,6 +20,15 @@ import {
     Vector3
 } from 'https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.module.js';
 
+const mobileFlag = false;
+
+if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+    // true for mobile device
+    mobileFlag = true;
+  }
+  
+
+
 // select our play button
 const playButton = document.querySelector('button');
 
@@ -40,6 +49,14 @@ playButton.addEventListener('click', function() {
     }
 
 }, false);
+
+if (mobileFlag) {
+    document.getElementById("playButton").style.display = "none";
+    document.getElementById("download-oculus").style.display = "none";
+    document.getElementById("download-windows").style.display = "none";
+    document.getElementById("download-macos").style.display = "none";
+}
+
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
