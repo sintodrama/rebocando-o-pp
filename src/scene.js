@@ -23,7 +23,6 @@ import { GLTFLoader } from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoa
 
 const canvas = document.querySelector('#c');
 const renderer = new WebGLRenderer({canvas, antialias: true});
-renderer.xr.enabled = true;
 renderer.outputEncoding = RGBDEncoding;
 
 renderer.shadowMap.enabled = true;
@@ -33,16 +32,16 @@ const aspect = 2;  // the canvas default
 const near = 0.1;
 const far = 2000;
 
+const scene = new Scene();
 
 const camera = new PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(32,6,0);
+camera.position.set(78,15,-42);
+scene.add(camera);
 
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0, 0);
 controls.update();
-
-const scene = new Scene();
 
 {
     const loader = new TextureLoader();

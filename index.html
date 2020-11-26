@@ -5,17 +5,53 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel='icon' type='image/png' sizes='32x32' href='textures/favicon-32x32.png'>
         <link rel='icon' type='image/png' sizes='96x96' href='textures/favicon-96x96.png'>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="./main.css">
         <title>_|\//\_</title>
         <script src="https://cdn.jsdelivr.net/npm/resonance-audio/build/resonance-audio.min.js"></script>
     </head>
     <canvas id="c"></canvas>
     <body>
-        <h1>Rebocando o Pavilhão Philips</h1>
+        
+
+        <h1 id="title">REBOCANDO O PAVILHÃO PHILIPS</h1>
+        
         <button id="playButton" data-playing="false" role="switch" aria-checked="false">
             <span> PLAY | PAUSE </span>
         </button>
+        
+        <h1 id="download">Download the full virtual installation:</h1>
+        <!-- <button id="oculus" data-playing="false" role="switch" aria-checked="false">
+            <span> Oculus </span>
+            <a href="https://www.oculus.com/"></a>
+        </button>
+        <button id="windows" data-playing="false" role="switch" aria-checked="false">
+            <span> Windows </span>
+        </button>
+        <button id="mac" data-playing="false" role="switch" aria-checked="false">
+            <span> macOS </span>
+        </button> -->
+
+        <div id="download-oculus">
+            <a href="https://sidequestvr.com/download" class="button oculus">Oculus</a>
+        </div>
+        <div id="download-windows">
+            <a href="https://drive.google.com/file/d/1af98QfiLC-qKUYHW1wD6iFMEBNzPjWIF/view?usp=sharing" class="button windows">Windows</a>
+        </div>   
+        <div id="download-macos"> 
+            <a href="https://drive.google.com/file/d/1OA1unxyUGMAgREKiP0WrEpQZzN-wMpJx/view?usp=sharing" class="button macos">macOs</a>
+        </div>
+
+        <div id="social-media">
+            <a href="https://www.soundcloud.com/sintodrama" class="fa fa-soundcloud "></a>
+            <a href="https://sintodrama.bandcamp.com/" class="fa fa-bandcamp "></a>
+            <a href="https://www.instagram.com/sintodrama" class="fa fa-instagram "></a>
+            <!-- <a href="https://www.facebook.com/eusintodrama" class="fa fa-facebook "></a> -->
+            <!-- <a href="https://www.youtube.com/channel/UC_MONdZgbgCsDHONJbn5_wg" class="fa fa-youtube "></a> -->
+        </div>
+        
         <script type="module" src="./main.js"></script>
+    
     </body>
     
 </html>
