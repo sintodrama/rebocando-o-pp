@@ -156,10 +156,11 @@ a.button {
   @media screen and (max-width: 868px) {
 
   #playButton {display: none;}
-  #download-oculus {display: none;}
+  /* #download-oculus {display: none;} */
   #download-windows {display: none;}
   #download-macos {display: none;}
-  #download {display: none;}
+  /* #download {display: none;} */
+  #social-media {display: none;}
 
   }
   
