@@ -34,7 +34,7 @@ canvas {
     font-size: 1em;
     color: white;
     background-color: transparent;
-    line-height: .5em;
+    line-height: 1em;
     padding: .2em;
     font-weight: lighter;
 }
@@ -184,6 +184,14 @@ a.button {
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
+    }
+
+    #download {
+        position: absolute;
+        bottom: 6em;
+        left: 2em;
+        text-align: right;
+        line-height: 1em;
     }
 
   }
