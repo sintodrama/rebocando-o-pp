@@ -162,44 +162,28 @@ a.button {
     /* #download {display: none;} */
     #social-media {display: none;}
 
-    /* #download-oculus {
-        position: relative; 
-        bottom: 5em; 
-        
-        background-color: rgb(11, 77, 139);
-        
-        color: white;
-        vertical-align: auto;
-        text-align: center;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 1em;
-        line-height: .8em;
-        padding: .2em; 
-        width: 5em;
-        border: 2px solid transparent;
-    } */
-
-    #download {
-        position: relative;
-        bottom: 7em;
-        left: 0em;
-        text-align: center;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 1em;
-        color: white;
-        background-color: transparent;
-        line-height: .5em;
-        padding: .2em;
-        font-weight: lighter;
+    #download-oculus {
+        position: absolute; 
+        bottom: 2.5em; 
+        left: 2em;   
     }
+
+    #download-windows {
+        position: absolute; 
+        bottom: 2.5em; 
+        left: 8em;  
+    }
+
+    #download-macos {
+        position: absolute; 
+        bottom: 2.5em; 
+        left: 14em;   
+    }
+
     a.button {
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        font-family: 'Courier New', Courier, monospace;
-        color: white;
-        text-decoration: none;
-        align-self: center;
     }
 
   }
